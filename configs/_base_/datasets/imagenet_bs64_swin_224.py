@@ -1,6 +1,7 @@
 # dataset settings
 dataset_type = 'ImageNet'
 data_preprocessor = dict(
+    type="ClsDataPreprocessor",
     num_classes=1000,
     # RGB format normalization parameters
     mean=[123.675, 116.28, 103.53],

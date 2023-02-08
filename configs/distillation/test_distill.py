@@ -1,8 +1,12 @@
+_base_ = [
+    '../_base_/datasets/cifar100_bs16.py',
+]
+
 # model settings
 model = dict(
     type="Distiller",
-    teacher=dict(type='LeNet5', num_classes=10),
-    student=dict(type='LeNet5', num_classes=10),
+    teacher=dict(type='AlexNet', num_classes=10),
+    student=dict(type='AlexNet', num_classes=10),
     head=dict(
         type='ClsHead',
         loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
@@ -12,31 +16,7 @@ model = dict(
 work_dir = "work_dirs"
 
 # dataset settings
-dataset_type = 'MNIST'
-data_preprocessor = dict(type= 'mmcls.ClsDataPreprocessor', mean=[33.46], std=[78.87], num_classes=10)
-
-pipeline = [dict(type='Resize', scale=32), dict(type='PackClsInputs')]
-
-common_data_cfg = dict(
-    type=dataset_type, data_prefix='data/mnist', pipeline=pipeline)
-
-train_dataloader = dict(
-    batch_size=64,
-    num_workers=2,
-    dataset=dict(**common_data_cfg, test_mode=False),
-    sampler=dict(type='DefaultSampler', shuffle=True),
-)
-
-val_dataloader = dict(
-    batch_size=4,
-    num_workers=2,
-    dataset=dict(**common_data_cfg, test_mode=True),
-    sampler=dict(type='DefaultSampler', shuffle=False),
-)
-val_evaluator = dict(type='Accuracy', topk=(1, ))
-
-test_dataloader = val_dataloader
-test_evaluator = val_evaluator
+# data这里直接继承cifar100试一下
 
 # schedule settings
 optim_wrapper = dict(
