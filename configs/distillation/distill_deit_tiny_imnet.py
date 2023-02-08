@@ -8,13 +8,13 @@ _base_ = [
 
 # model settings
 model = dict(
-    type='ImageClassifier',
+    type='Distiller',
     teacher=dict(
         type='VisionTransformer',
         arch='deit-tiny',
         img_size=224,
         patch_size=16),
-    neck=None,
+    
     head=dict(
         type='VisionTransformerClsHead',
         num_classes=1000,
@@ -33,7 +33,10 @@ model = dict(
 )
 
 # data settings
-train_dataloader = dict(batch_size=256)
+train_dataloader = dict(batch_size=128)
+
+# work_dir
+work_dir = "work_dirs"
 
 # schedule settings
 optim_wrapper = dict(

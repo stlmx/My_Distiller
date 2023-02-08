@@ -13,8 +13,18 @@ class Distiller(BaseClassifier):
     """
     我的图像分类backbone蒸馏抽象类
     """
-    def __init__(self, init_cfg: Optional[dict] = None, data_preprocessor: Optional[dict] = None, teacher=None, student=None, head=None):
+    def __init__(self, init_cfg: Optional[dict] = None, 
+                 data_preprocessor: Optional[dict] = None, 
+                 train_cfg=None,
+                 teacher=None, 
+                 student=None, 
+                 head=None):
         super().__init__(init_cfg, data_preprocessor)
+        
+        if train_cfg is not None and 'augments' in train_cfg:
+            # Set batch augmentations by `train_cfg`
+            data_preprocessor['batch_augments'] = train_cfg
+            
         if not isinstance(teacher, nn.Module):
             self.teacher = MODELS.build(teacher)
         if not isinstance(student, nn.Module):
@@ -28,7 +38,7 @@ class Distiller(BaseClassifier):
 
     def forward(self, inputs: torch.Tensor, data_samples: Optional[List[BaseDataElement]] = None, mode: str = 'tensor'):
         # x_s = self.student.features(inputs)
-        x_t = self.teacher.features(inputs)
+        # x_t = self.teacher.features(inputs)
         if mode == "tensor":
             print("真的用到了这个模式吗？？？")
         elif mode == "loss":
