@@ -46,10 +46,15 @@ class Distiller(BaseClassifier):
         if mode == "tensor":
             print("真的用到了这个模式吗？？？")
         elif mode == "loss":
-            # label = self.gen_text(inputs=inputs, data_samples=data_samples)
-            # pre_txt = self.teacher.head(self.teacher(inputs))
+            label = self.gen_text(inputs=inputs, data_samples=data_samples)
+            pre_txt = self.teacher.head(self.teacher(inputs))[-1]
+            loss_dis = self.distill(label, pre_txt)
             
-            return self.teacher.head.loss(self.teacher(inputs), data_samples)
+            loss_ori = self.teacher.head.loss(self.teacher(inputs), data_samples)
+            
+            loss = {}
+            loss_ori.update({"loss_dis":loss_dis})
+            return loss_ori
             
         elif mode == "predict":
             return self.teacher.head.predict(self.teacher(inputs), data_samples)
