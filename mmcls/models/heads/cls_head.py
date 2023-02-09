@@ -140,7 +140,7 @@ class ClsHead(BaseHead):
 
         Including softmax and set ``pred_label`` of data samples.
         """
-        pred_scores = F.softmax(cls_score, dim=1)
+        pred_scores = F.softmax(cls_score[0], dim=1)
         pred_labels = pred_scores.argmax(dim=1, keepdim=True).detach()
 
         out_data_samples = []
