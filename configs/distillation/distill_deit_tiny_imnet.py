@@ -6,6 +6,9 @@ _base_ = [
     '../_base_/default_runtime.py'
 ]
 
+find_unused_parameters = True
+fp16 = dict(loss_scale='dynamic')
+
 # model settings
 model = dict(
     type='Distiller',

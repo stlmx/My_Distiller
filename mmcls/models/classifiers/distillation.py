@@ -8,6 +8,10 @@ from mmengine.structures import BaseDataElement
 from mmcls.models.classifiers import BaseClassifier
 from mmcls.registry import MODELS
 
+import clip
+from PIL import Image
+from data.imagenet_constant import IMAGENET_CLASSES
+
 @MODELS.register_module()
 class Distiller(BaseClassifier):
     """
@@ -42,16 +46,17 @@ class Distiller(BaseClassifier):
         if mode == "tensor":
             print("真的用到了这个模式吗？？？")
         elif mode == "loss":
-            # loss = self.distill(output_s=x_s, output_t=x_t)
-            # return {"distill_loss": loss}
+            # label = self.gen_text(inputs=inputs, data_samples=data_samples)
+            # pre_txt = self.teacher.head(self.teacher(inputs))
+            
             return self.teacher.head.loss(self.teacher(inputs), data_samples)
             
         elif mode == "predict":
             return self.teacher.head.predict(self.teacher(inputs), data_samples)
         
-    def distill(self,output_s, output_t):
+    def distill(self, label_txt, pre_txt):
 
-        return F.mse_loss(output_s[0], output_t[0])
+        return F.mse_loss(label_txt, pre_txt)
     
     def load_teacher_ckpt(self, ckpt_path=None):
         "给教师模型load权重, 并且把教师模型的权重冻住不能被优化"
@@ -77,5 +82,14 @@ class Distiller(BaseClassifier):
                 new.update({tmp:ckpt.pop(key)})
         self.student.load_state_dict(new)
         # self.teacher.eval()   
-        
     
+    def gen_text(self, data_samples, inputs):
+        
+        label_text_dict = torch.load("./data/class.pth")
+        label_text = []
+        for i in range(len(data_samples)):
+            label_text.append(label_text_dict[i])
+        
+        label = torch.concat(label_text).to(inputs.device)
+        
+        return label

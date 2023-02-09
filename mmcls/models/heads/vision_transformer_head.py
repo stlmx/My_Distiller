@@ -52,7 +52,9 @@ class VisionTransformerClsHead(ClsHead):
     def _init_layers(self):
         """"Init hidden layer if exists."""
         if self.hidden_dim is None:
-            layers = [('head', nn.Linear(self.in_channels, self.num_classes))]
+            layers = [('head', nn.Linear(self.in_channels, self.num_classes)),
+                      ('head_text', nn.Linear(self.in_channels, 512))
+                      ]
         else:
             layers = [
                 ('pre_logits', nn.Linear(self.in_channels, self.hidden_dim)),
@@ -92,4 +94,10 @@ class VisionTransformerClsHead(ClsHead):
         pre_logits = self.pre_logits(feats)
         # The final classification head.
         cls_score = self.layers.head(pre_logits)
-        return cls_score
+        text_score = self.layers.head_text(pre_logits)
+        return [cls_score, text_score]
+    
+    def forward_text(self, feats):
+        pre_logits = self.pre_logits(feats)
+        text_score = self.layers.head_text(pre_logits)
+        return text_score

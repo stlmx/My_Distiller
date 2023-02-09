@@ -92,8 +92,9 @@ class ClsHead(BaseHead):
 
         # compute loss
         losses = dict()
+        # 注意这个地方我对cls_score后面加了个[0]，是因为我在head里面把单一的视觉FFN的输出变成了[visual_FFN， text_FFN]
         loss = self.loss_module(
-            cls_score, target, avg_factor=cls_score.size(0), **kwargs)
+            cls_score[0], target, avg_factor=cls_score[0].size(0), **kwargs)
         losses['loss'] = loss
 
         # compute accuracy
