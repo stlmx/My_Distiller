@@ -14,10 +14,10 @@ model, preprocess = clip.load("ViT-B/16", device="cpu")
 
 result = [] 
 for i in range(len(IMAGENET_CLASSES)):
-    result.append(model.encode_text(clip.tokenize(IMAGENET_CLASSES[i])))
+    result.append(model.encode_text(clip.tokenize("It is a photo of " +  IMAGENET_CLASSES[i])))
 
 
-torch.save(result, "./data/class.pth")
+torch.save(result, "./data/class_promt.pth")
     
     
 

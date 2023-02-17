@@ -8,8 +8,7 @@ from mmengine.structures import BaseDataElement
 from mmcls.models.classifiers import BaseClassifier
 from mmcls.registry import MODELS
 
-import clip
-from PIL import Image
+
 from data.imagenet_constant import IMAGENET_CLASSES
 
 @MODELS.register_module()
@@ -36,6 +35,8 @@ class Distiller(BaseClassifier):
         if not isinstance(head, nn.Module):
             self.teacher.head = MODELS.build(head)
             # self.student.head = MODELS.build(head)
+        
+        self.label_text_dict = torch.load("./data/class_promt.pth")
 
         # self.load_teacher_ckpt()
         # self.load_student_classifier()
@@ -90,11 +91,11 @@ class Distiller(BaseClassifier):
     
     def gen_text(self, data_samples, inputs):
         
-        label_text_dict = torch.load("./data/class.pth")
         label_text = []
         for i in range(len(data_samples)):
-            label_text.append(label_text_dict[i])
+            label_text.append(self.label_text_dict[data_samples[i]._gt_label.label])
         
-        label = torch.concat(label_text).to(inputs.device)
+        label = torch.concat(label_text)
+        label = label.to(inputs.device)
         
         return label

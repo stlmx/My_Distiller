@@ -6,8 +6,8 @@ _base_ = [
     '../_base_/default_runtime.py'
 ]
 
-find_unused_parameters = True
-fp16 = dict(loss_scale='dynamic')
+find_unused_parameters=True
+fp16 = dict(loss_scale='512')
 
 # model settings
 model = dict(
@@ -36,7 +36,7 @@ model = dict(
 )
 
 # data settings
-train_dataloader = dict(batch_size=128)
+train_dataloader = dict(batch_size=1)
 
 # work_dir
 work_dir = "work_dirs"
