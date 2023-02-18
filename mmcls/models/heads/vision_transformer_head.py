@@ -82,19 +82,24 @@ class VisionTransformerClsHead(ClsHead):
         obtain the feature of the last stage and forward in hidden layer if
         exists.
         """
-        _, cls_token = feats[-1]
+        attention_token, cls_token = feats[-1]
         if self.hidden_dim is None:
-            return cls_token
+            return attention_token, cls_token
         else:
             x = self.layers.pre_logits(cls_token)
             return self.layers.act(x)
 
     def forward(self, feats: Tuple[List[torch.Tensor]]) -> torch.Tensor:
         """The forward process."""
-        pre_logits = self.pre_logits(feats)
+        attention_token, pre_logits = self.pre_logits(feats)[1]
         # The final classification head.
         cls_score = self.layers.head(pre_logits)
-        text_score = self.layers.head_text(pre_logits)
+        
+        # 使用average pooling对cls以外的token进行处理
+        pool = nn.AvgPool2d(14)
+        text_score = pool(attention_token).reshape(128, 192)
+         
+        text_score = self.layers.head_text(text_score)
         return [cls_score, text_score]
     
     def forward_text(self, feats):
