@@ -48,8 +48,9 @@ class Distiller(BaseClassifier):
             print("真的用到了这个模式吗？？？")
         elif mode == "loss":
             label = self.gen_text(inputs=inputs, data_samples=data_samples)
+            # pre_txt的维度为[bs, 512]
             pre_txt = self.teacher.head(self.teacher(inputs))[-1]
-            loss_dis = self.distill(label, pre_txt)
+            loss_dis = self.distill(label, pre_txt, data_samples=data_samples, inputs=inputs)
             
             loss_ori = self.teacher.head.loss(self.teacher(inputs), data_samples)
             
@@ -60,9 +61,17 @@ class Distiller(BaseClassifier):
         elif mode == "predict":
             return self.teacher.head.predict(self.teacher(inputs), data_samples)
         
-    def distill(self, label_txt, pre_txt):
+    def distill(self, label_txt, pre_txt, data_samples, inputs):
+        one_hot_label = self.gen_one_hot_label(data_samples, inputs)
+        # text_label是[1000, 512]
+        text_label = torch.stack(self.label_text_dict)
+        text_label = text_label.squeeze(1).to(one_hot_label.device)
+        
+        matrix = pre_txt @ text_label.T
+        
+        score = F.cross_entropy(matrix, one_hot_label)
 
-        return F.mse_loss(label_txt, pre_txt)
+        return score
     
     def load_teacher_ckpt(self, ckpt_path=None):
         "给教师模型load权重, 并且把教师模型的权重冻住不能被优化"
@@ -99,3 +108,11 @@ class Distiller(BaseClassifier):
         label = label.to(inputs.device)
         
         return label
+    
+    def gen_one_hot_label(self, data_samples, inputs):
+        one_hot_label = torch.zeros((len(data_samples), 1000), device=inputs.device)
+        
+        for i in range(len(data_samples)):
+            one_hot_label[i][data_samples[i]._gt_label.label] = 1
+            
+        return one_hot_label
