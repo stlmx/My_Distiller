@@ -36,7 +36,7 @@ model = dict(
 )
 
 # data settings
-train_dataloader = dict(batch_size=1)
+train_dataloader = dict(batch_size=4)
 
 # work_dir
 work_dir = "work_dirs"

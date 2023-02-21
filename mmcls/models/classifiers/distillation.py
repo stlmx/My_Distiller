@@ -37,6 +37,8 @@ class Distiller(BaseClassifier):
             # self.student.head = MODELS.build(head)
         
         self.label_text_dict = torch.load("./data/class_promt.pth")
+        self.norm1 = nn.BatchNorm1d(512)
+        self.norm2 = nn.BatchNorm1d(512)
 
         # self.load_teacher_ckpt()
         # self.load_student_classifier()
@@ -66,6 +68,9 @@ class Distiller(BaseClassifier):
         # text_label是[1000, 512]
         text_label = torch.stack(self.label_text_dict)
         text_label = text_label.squeeze(1).to(one_hot_label.device)
+        
+        pre_txt = self.norm1(pre_txt)
+        text_label = self.norm2(text_label)
         
         matrix = pre_txt @ text_label.T
         
