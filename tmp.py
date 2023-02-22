@@ -13,7 +13,9 @@ for i  in range(1000):
     if IMAGENET_CLASSES[i] == "fly":
         print("the index of fly is:", i)
 
-emb = torch.load("data/class_promt.pth")
-emb = torch.stack(emb).squeeze(1)
+# emb = torch.load("data/class_promt.pth")
+# emb = torch.stack(emb).squeeze(1)
 
-print(emb.min())
+# print(emb.min())
+
+print(IMAGENET_CLASSES[874])

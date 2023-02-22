@@ -68,18 +68,14 @@ class Distiller(BaseClassifier):
         # text_label是[1000, 512]
         text_label = torch.stack(self.label_text_dict)
         text_label = text_label.to(one_hot_label.device)
-        
-        pre_txt = pre_txt.reshape((-1,1,512))
-        
-        pre_txt = self.norm1(pre_txt)
-        text_label = self.norm2(text_label)
-        
-        pre_txt = pre_txt.squeeze(1)
+
         text_label = text_label.squeeze(1)
         
         matrix = pre_txt @ text_label.T
         
-        score = F.cross_entropy(matrix / 2, one_hot_label)
+        matrix = F.softmax(matrix)
+        
+        score = F.cross_entropy(matrix / 1, one_hot_label)
 
         return score
     
