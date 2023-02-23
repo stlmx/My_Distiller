@@ -71,9 +71,9 @@ class Distiller(BaseClassifier):
 
         text_label = text_label.squeeze(1)
         
-        matrix = F.cosine_similarity(pre_txt, text_label)
+        matrix = pre_txt @ text_label.T
         
-        matrix = F.softmax(matrix)
+        matrix = matrix / (torch.norm(matrix) + 1e-6)
         
         score = F.cross_entropy(matrix / 1, one_hot_label)
 
