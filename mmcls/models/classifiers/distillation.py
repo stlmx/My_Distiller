@@ -71,7 +71,7 @@ class Distiller(BaseClassifier):
 
         text_label = text_label.squeeze(1)
         
-        matrix = pre_txt @ text_label.T
+        matrix = F.cosine_similarity(pre_txt, text_label)
         
         matrix = F.softmax(matrix)
         
