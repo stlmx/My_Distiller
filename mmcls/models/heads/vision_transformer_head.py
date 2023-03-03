@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 
 import torch
 import torch.nn as nn
-from mmcv.cnn import build_activation_layer
+from mmcv.cnn import build_activation_layer, build_norm_layer
 from mmengine.model import Sequential
 from mmengine.model.weight_init import trunc_normal_
 
@@ -53,7 +53,11 @@ class VisionTransformerClsHead(ClsHead):
         """"Init hidden layer if exists."""
         if self.hidden_dim is None:
             layers = [('head', nn.Linear(self.in_channels, self.num_classes)),
-                      ('head_text', nn.Linear(self.in_channels, 512))
+                          ("ln1", nn.LayerNorm(192)),
+                          ("linear1", nn.Linear(self.in_channels, 512 * 4)),
+                          ("act", nn.ReLU()),
+                          ("ln2", nn.LayerNorm(2048)),
+                          ("linear2", nn.Linear(512 * 4, 512))
                       ]
         else:
             layers = [
@@ -94,7 +98,13 @@ class VisionTransformerClsHead(ClsHead):
         pre_logits = self.pre_logits(feats)
         # The final classification head.
         cls_score = self.layers.head(pre_logits)
-        text_score = self.layers.head_text(pre_logits)
+        
+        text_score = self.layers.ln1(pre_logits)
+        text_score = self.layers.linear1(text_score)
+        text_score = self.layers.act(text_score)
+        text_score = self.layers.ln2(text_score)
+        text_score = self.layers.linear2(text_score)
+        
         return [cls_score, text_score]
     
     def forward_text(self, feats):

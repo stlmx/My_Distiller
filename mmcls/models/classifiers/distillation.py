@@ -56,7 +56,6 @@ class Distiller(BaseClassifier):
             
             loss_ori = self.teacher.head.loss(self.teacher(inputs), data_samples)
             
-            loss = {}
             loss_ori.update({"loss_dis":loss_dis})
             return loss_ori
             
@@ -72,8 +71,6 @@ class Distiller(BaseClassifier):
         text_label = text_label.squeeze(1)
         
         matrix = pre_txt @ text_label.T
-        
-        matrix = matrix / (torch.norm(matrix) + 1e-6)
         
         score = F.cross_entropy(matrix / 1, one_hot_label)
 
